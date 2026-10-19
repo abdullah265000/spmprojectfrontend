@@ -1,0 +1,380 @@
+import type {
+  BodyWeightPoint,
+  Exercise,
+  ExerciseCategory,
+  MemberProfile,
+  MemberSummary,
+  Session,
+  StrengthPoint,
+  User,
+  VolumePoint,
+  WorkoutPlan,
+} from '@/types';
+
+export const currentUser: User = {
+  id: 'u-001',
+  name: 'Alex Morgan',
+  email: 'alex.morgan@uol.edu.pk',
+  role: 'member',
+  avatarColor: 'from-emerald-400 to-teal-500',
+  phone: '+92 300 1234567',
+  membership: 'Premium',
+  joinedDate: '2025-01-15',
+};
+
+export const users: User[] = [
+  currentUser,
+  {
+    id: 'u-002',
+    name: 'Sarah Khan',
+    email: 'sarah.khan@uol.edu.pk',
+    role: 'trainer',
+    avatarColor: 'from-blue-400 to-cyan-500',
+    specialization: 'Strength & Conditioning',
+    phone: '+92 301 2345678',
+  },
+  {
+    id: 'u-003',
+    name: 'Bilal Ahmed',
+    email: 'bilal.ahmed@uol.edu.pk',
+    role: 'trainer',
+    avatarColor: 'from-orange-400 to-amber-500',
+    specialization: 'Hypertrophy & Nutrition',
+  },
+  {
+    id: 'u-004',
+    name: 'Dr. Hassan Raza',
+    email: 'hassan.raza@uol.edu.pk',
+    role: 'admin',
+    avatarColor: 'from-rose-400 to-pink-500',
+    phone: '+92 321 0000000',
+  },
+];
+
+const exerciseBank: Record<ExerciseCategory, string[]> = {
+  Chest: ['Barbell Bench Press', 'Incline Dumbbell Press', 'Chest Fly', 'Push-Ups', 'Cable Crossover'],
+  Back: ['Deadlift', 'Pull-Ups', 'Bent-Over Row', 'Lat Pulldown', 'Seated Cable Row'],
+  Legs: ['Back Squat', 'Front Squat', 'Leg Press', 'Romanian Deadlift', 'Walking Lunges', 'Calf Raises'],
+  Shoulders: ['Overhead Press', 'Lateral Raise', 'Front Raise', 'Face Pull', 'Arnold Press'],
+  Arms: ['Barbell Curl', 'Hammer Curl', 'Triceps Pushdown', 'Skull Crushers', 'Preacher Curl'],
+  Core: ['Plank', 'Hanging Leg Raise', 'Cable Crunch', 'Russian Twist', 'Ab Wheel Rollout'],
+  Cardio: ['Treadmill Run', 'Rowing Machine', 'Cycling', 'Jump Rope', 'Stair Climber'],
+  'Full Body': ['Kettlebell Swing', 'Burpees', 'Thrusters', 'Turkish Get-Up', 'Farmer Carry'],
+};
+
+export const getExercisesByCategory = (category: ExerciseCategory): string[] =>
+  exerciseBank[category] ?? [];
+
+export const allCategories: ExerciseCategory[] = [
+  'Chest',
+  'Back',
+  'Legs',
+  'Shoulders',
+  'Arms',
+  'Core',
+  'Cardio',
+  'Full Body',
+];
+
+const makeExercise = (
+  id: string,
+  name: string,
+  category: ExerciseCategory,
+  sets: number,
+  reps: number,
+  weight: number,
+  restSeconds = 90,
+  notes?: string
+): Exercise => ({ id, name, category, sets, reps, weight, restSeconds, notes });
+
+export const workoutPlans: WorkoutPlan[] = [
+  {
+    id: 'wp-001',
+    name: 'Push / Pull / Legs',
+    description: 'Classic 6-day split focused on hypertrophy and progressive overload.',
+    category: 'Full Body',
+    assignedTo: ['u-001'],
+    createdBy: 'u-002',
+    createdAt: '2025-02-01',
+    difficulty: 'Intermediate',
+    exercises: [
+      makeExercise('ex-001', 'Barbell Bench Press', 'Chest', 4, 8, 60, 120, 'Keep shoulder blades retracted.'),
+      makeExercise('ex-002', 'Incline Dumbbell Press', 'Chest', 3, 10, 22, 90),
+      makeExercise('ex-003', 'Overhead Press', 'Shoulders', 4, 6, 40, 120),
+      makeExercise('ex-004', 'Lateral Raise', 'Shoulders', 3, 12, 8, 60),
+      makeExercise('ex-005', 'Triceps Pushdown', 'Arms', 3, 12, 25, 60),
+    ],
+  },
+  {
+    id: 'wp-002',
+    name: 'Strength Foundations',
+    description: 'Beginner-friendly full-body plan built around the big compound lifts.',
+    category: 'Full Body',
+    assignedTo: ['u-001'],
+    createdBy: 'u-002',
+    createdAt: '2025-03-10',
+    difficulty: 'Beginner',
+    exercises: [
+      makeExercise('ex-010', 'Back Squat', 'Legs', 5, 5, 80, 180),
+      makeExercise('ex-011', 'Bench Press', 'Chest', 5, 5, 55, 180),
+      makeExercise('ex-012', 'Bent-Over Row', 'Back', 4, 8, 50, 120),
+      makeExercise('ex-013', 'Overhead Press', 'Shoulders', 3, 8, 35, 120),
+    ],
+  },
+  {
+    id: 'wp-003',
+    name: 'Fat Burner Cardio Circuit',
+    description: 'High-intensity interval circuit to torch calories and build endurance.',
+    category: 'Cardio',
+    assignedTo: ['u-001'],
+    createdBy: 'u-003',
+    createdAt: '2025-04-02',
+    difficulty: 'Beginner',
+    exercises: [
+      makeExercise('ex-020', 'Treadmill Run', 'Cardio', 1, 1, 0, 0, '20 min HIIT intervals.'),
+      makeExercise('ex-021', 'Rowing Machine', 'Cardio', 4, 1, 0, 60, '500m sprints.'),
+      makeExercise('ex-022', 'Kettlebell Swing', 'Full Body', 4, 15, 16, 60),
+      makeExercise('ex-023', 'Burpees', 'Full Body', 4, 12, 0, 45),
+    ],
+  },
+];
+
+export const memberProfile: MemberProfile = {
+  id: 'mp-001',
+  userId: 'u-001',
+  age: 24,
+  heightCm: 178,
+  startWeightKg: 82,
+  currentWeightKg: 76.5,
+  goalWeightKg: 74,
+  bodyFatPct: 16.5,
+  goal: 'Build Muscle',
+  assignedTrainerId: 'u-002',
+};
+
+// 12 weeks of strength progression data
+export const strengthData: StrengthPoint[] = [
+  { date: 'Wk 1', benchPress: 50, squat: 70, deadlift: 90, overheadPress: 30 },
+  { date: 'Wk 2', benchPress: 52.5, squat: 72.5, deadlift: 95, overheadPress: 32.5 },
+  { date: 'Wk 3', benchPress: 55, squat: 75, deadlift: 100, overheadPress: 35 },
+  { date: 'Wk 4', benchPress: 55, squat: 77.5, deadlift: 102.5, overheadPress: 35 },
+  { date: 'Wk 5', benchPress: 57.5, squat: 80, deadlift: 107.5, overheadPress: 37.5 },
+  { date: 'Wk 6', benchPress: 60, squat: 82.5, deadlift: 110, overheadPress: 37.5 },
+  { date: 'Wk 7', benchPress: 60, squat: 85, deadlift: 115, overheadPress: 40 },
+  { date: 'Wk 8', benchPress: 62.5, squat: 87.5, deadlift: 117.5, overheadPress: 40 },
+  { date: 'Wk 9', benchPress: 62.5, squat: 90, deadlift: 122.5, overheadPress: 42.5 },
+  { date: 'Wk 10', benchPress: 65, squat: 92.5, deadlift: 125, overheadPress: 42.5 },
+  { date: 'Wk 11', benchPress: 67.5, squat: 95, deadlift: 130, overheadPress: 45 },
+  { date: 'Wk 12', benchPress: 70, squat: 100, deadlift: 135, overheadPress: 47.5 },
+];
+
+export const bodyWeightData: BodyWeightPoint[] = [
+  { date: 'Wk 1', weight: 82, bodyFat: 22 },
+  { date: 'Wk 2', weight: 81.5, bodyFat: 21.5 },
+  { date: 'Wk 3', weight: 80.8, bodyFat: 21 },
+  { date: 'Wk 4', weight: 80.2, bodyFat: 20.5 },
+  { date: 'Wk 5', weight: 79.6, bodyFat: 20 },
+  { date: 'Wk 6', weight: 79.1, bodyFat: 19.5 },
+  { date: 'Wk 7', weight: 78.5, bodyFat: 19 },
+  { date: 'Wk 8', weight: 78.2, bodyFat: 18.5 },
+  { date: 'Wk 9', weight: 77.6, bodyFat: 18 },
+  { date: 'Wk 10', weight: 77.2, bodyFat: 17.5 },
+  { date: 'Wk 11', weight: 76.8, bodyFat: 17 },
+  { date: 'Wk 12', weight: 76.5, bodyFat: 16.5 },
+];
+
+export const volumeData: VolumePoint[] = [
+  { date: 'Wk 1', volume: 4200, duration: 48 },
+  { date: 'Wk 2', volume: 4500, duration: 52 },
+  { date: 'Wk 3', volume: 5100, duration: 55 },
+  { date: 'Wk 4', volume: 4800, duration: 50 },
+  { date: 'Wk 5', volume: 5600, duration: 58 },
+  { date: 'Wk 6', volume: 6100, duration: 62 },
+  { date: 'Wk 7', volume: 5900, duration: 60 },
+  { date: 'Wk 8', volume: 6400, duration: 65 },
+  { date: 'Wk 9', volume: 6800, duration: 68 },
+  { date: 'Wk 10', volume: 7100, duration: 70 },
+  { date: 'Wk 11', volume: 7400, duration: 72 },
+  { date: 'Wk 12', volume: 7800, duration: 75 },
+];
+
+export const recentSessions: Session[] = [
+  {
+    id: 's-001',
+    memberId: 'u-001',
+    planId: 'wp-001',
+    date: '2026-10-16',
+    durationMinutes: 62,
+    totalVolume: 6420,
+    rating: 5,
+    exercises: [
+      {
+        id: 'le-001',
+        name: 'Barbell Bench Press',
+        category: 'Chest',
+        sets: [
+          { id: 'ls-1', setNumber: 1, reps: 8, weight: 60, completed: true },
+          { id: 'ls-2', setNumber: 2, reps: 8, weight: 62.5, completed: true },
+          { id: 'ls-3', setNumber: 3, reps: 7, weight: 65, completed: true },
+          { id: 'ls-4', setNumber: 4, reps: 6, weight: 67.5, completed: true },
+        ],
+      },
+      {
+        id: 'le-002',
+        name: 'Incline Dumbbell Press',
+        category: 'Chest',
+        sets: [
+          { id: 'ls-5', setNumber: 1, reps: 10, weight: 22, completed: true },
+          { id: 'ls-6', setNumber: 2, reps: 10, weight: 24, completed: true },
+          { id: 'ls-7', setNumber: 3, reps: 9, weight: 26, completed: true },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's-002',
+    memberId: 'u-001',
+    planId: 'wp-002',
+    date: '2026-10-14',
+    durationMinutes: 58,
+    totalVolume: 5840,
+    rating: 4,
+    exercises: [
+      {
+        id: 'le-010',
+        name: 'Back Squat',
+        category: 'Legs',
+        sets: [
+          { id: 'ls-10', setNumber: 1, reps: 5, weight: 85, completed: true },
+          { id: 'ls-11', setNumber: 2, reps: 5, weight: 90, completed: true },
+          { id: 'ls-12', setNumber: 3, reps: 5, weight: 92.5, completed: true },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's-003',
+    memberId: 'u-001',
+    planId: 'wp-001',
+    date: '2026-10-12',
+    durationMinutes: 55,
+    totalVolume: 5200,
+    rating: 4,
+    exercises: [],
+  },
+  {
+    id: 's-004',
+    memberId: 'u-001',
+    planId: 'wp-003',
+    date: '2026-10-09',
+    durationMinutes: 38,
+    totalVolume: 1800,
+    rating: 5,
+    exercises: [],
+  },
+  {
+    id: 's-005',
+    memberId: 'u-001',
+    planId: 'wp-002',
+    date: '2026-10-07',
+    durationMinutes: 65,
+    totalVolume: 6100,
+    rating: 5,
+    exercises: [],
+  },
+];
+
+export const memberRoster: MemberSummary[] = [
+  {
+    id: 'm-001',
+    name: 'Alex Morgan',
+    email: 'alex.morgan@uol.edu.pk',
+    avatarColor: 'from-emerald-400 to-teal-500',
+    goal: 'Build Muscle',
+    lastSessionDate: '2026-10-16',
+    sessionsThisMonth: 12,
+    status: 'active',
+    assignedTrainer: 'Sarah Khan',
+    membership: 'Premium',
+  },
+  {
+    id: 'm-002',
+    name: 'Hira Sheikh',
+    email: 'hira.sheikh@uol.edu.pk',
+    avatarColor: 'from-fuchsia-400 to-purple-500',
+    goal: 'Lose Weight',
+    lastSessionDate: '2026-10-15',
+    sessionsThisMonth: 9,
+    status: 'active',
+    assignedTrainer: 'Sarah Khan',
+    membership: 'Basic',
+  },
+  {
+    id: 'm-003',
+    name: 'Usman Tariq',
+    email: 'usman.tariq@uol.edu.pk',
+    avatarColor: 'from-sky-400 to-blue-500',
+    goal: 'Endurance',
+    lastSessionDate: '2026-10-11',
+    sessionsThisMonth: 5,
+    status: 'moderate',
+    assignedTrainer: 'Bilal Ahmed',
+    membership: 'Premium',
+  },
+  {
+    id: 'm-004',
+    name: 'Mariam Iqbal',
+    email: 'mariam.iqbal@uol.edu.pk',
+    avatarColor: 'from-amber-400 to-orange-500',
+    goal: 'General Fitness',
+    lastSessionDate: '2026-10-03',
+    sessionsThisMonth: 2,
+    status: 'inactive',
+    assignedTrainer: 'Bilal Ahmed',
+    membership: 'Basic',
+  },
+  {
+    id: 'm-005',
+    name: 'Hamza Yousaf',
+    email: 'hamza.yousaf@uol.edu.pk',
+    avatarColor: 'from-rose-400 to-red-500',
+    goal: 'Build Muscle',
+    lastSessionDate: '2026-10-14',
+    sessionsThisMonth: 11,
+    status: 'active',
+    assignedTrainer: 'Sarah Khan',
+    membership: 'Elite',
+  },
+  {
+    id: 'm-006',
+    name: 'Fatima Noor',
+    email: 'fatima.noor@uol.edu.pk',
+    avatarColor: 'from-lime-400 to-green-500',
+    goal: 'Lose Weight',
+    lastSessionDate: '2026-10-08',
+    sessionsThisMonth: 4,
+    status: 'moderate',
+    assignedTrainer: 'Unassigned',
+    membership: 'Basic',
+  },
+  {
+    id: 'm-007',
+    name: 'Daniyal Rana',
+    email: 'daniyal.rana@uol.edu.pk',
+    avatarColor: 'from-cyan-400 to-teal-500',
+    goal: 'Build Muscle',
+    lastSessionDate: '2026-10-17',
+    sessionsThisMonth: 14,
+    status: 'active',
+    assignedTrainer: 'Sarah Khan',
+    membership: 'Elite',
+  },
+];
+
+export const staffRoster = [
+  { id: 'st-001', name: 'Sarah Khan', email: 'sarah.khan@uol.edu.pk', role: 'Trainer', specialization: 'Strength & Conditioning', membersAssigned: 4, status: 'Active', joinedDate: '2024-08-12', avatarColor: 'from-blue-400 to-cyan-500' },
+  { id: 'st-002', name: 'Bilal Ahmed', email: 'bilal.ahmed@uol.edu.pk', role: 'Trainer', specialization: 'Hypertrophy & Nutrition', membersAssigned: 3, status: 'Active', joinedDate: '2024-09-03', avatarColor: 'from-orange-400 to-amber-500' },
+  { id: 'st-003', name: 'Ayesha Malik', email: 'ayesha.malik@uol.edu.pk', role: 'Trainer', specialization: 'Mobility & Rehab', membersAssigned: 5, status: 'Active', joinedDate: '2025-01-20', avatarColor: 'from-emerald-400 to-green-500' },
+  { id: 'st-004', name: 'Dr. Hassan Raza', email: 'hassan.raza@uol.edu.pk', role: 'Admin', specialization: 'Operations Manager', membersAssigned: 0, status: 'Active', joinedDate: '2024-06-01', avatarColor: 'from-rose-400 to-pink-500' },
+  { id: 'st-005', name: 'Kamran Ali', email: 'kamran.ali@uol.edu.pk', role: 'Trainer', specialization: 'Olympic Lifting', membersAssigned: 2, status: 'On Leave', joinedDate: '2025-02-14', avatarColor: 'from-violet-400 to-indigo-500' },
+];

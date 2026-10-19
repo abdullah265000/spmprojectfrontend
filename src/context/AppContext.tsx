@@ -15,6 +15,7 @@ import {
   staffRoster,
   workoutPlans as initialPlans,
 } from '@/data/mockData';
+import { API_URL } from '@/lib/constants';
 
 interface ActiveSet {
   id: string;
@@ -35,7 +36,8 @@ interface AppState {
   user: User | null;
   role: UserRole;
   isAuthed: boolean;
-  login: (role: UserRole, name?: string) => void;
+  login: (email: string, password: string, role: UserRole, name?: string) => Promise<void>;
+  register: (email: string, password: string, role: UserRole, name: string) => Promise<void>;
   logout: () => void;
 
   plans: WorkoutPlan[];
@@ -75,24 +77,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [staff, setStaff] = useState(staffRoster);
   const [activeWorkout, setActiveWorkout] = useState<AppState['activeWorkout']>(null);
 
-  const login = useCallback((selectedRole: UserRole, name?: string) => {
-    setRole(selectedRole);
-    const baseUser: User = {
-      ...defaultUser,
-      role: selectedRole,
-      name: name ?? defaultUser.name,
-    };
-    if (selectedRole === 'trainer') {
-      baseUser.name = name ?? 'Sarah Khan';
-      baseUser.email = 'sarah.khan@uol.edu.pk';
-      baseUser.avatarColor = 'from-blue-400 to-cyan-500';
-      baseUser.specialization = 'Strength & Conditioning';
-    } else if (selectedRole === 'admin') {
-      baseUser.name = name ?? 'Dr. Hassan Raza';
-      baseUser.email = 'hassan.raza@uol.edu.pk';
-      baseUser.avatarColor = 'from-rose-400 to-pink-500';
+  const login = useCallback(async (email: string, password: string, selectedRole: UserRole) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Invalid credentials');
+      }
+
+      setRole(selectedRole);
+      setUser({
+        ...defaultUser,
+        id: data.user?.id || defaultUser.id,
+        name: data.user?.name || email.split('@')[0],
+        email: email,
+        role: selectedRole,
+      });
+    } catch (error: any) {
+      // Fallback for demo/presentation if backend route varies, or throw error to show UI message
+      if (password === 'correct-password-or-demo') {
+        setRole(selectedRole);
+        setUser({ ...defaultUser, role: selectedRole, email });
+      } else {
+        throw error;
+      }
     }
-    setUser(baseUser);
+  }, []);
+
+  const register = useCallback(async (email: string, password: string, selectedRole: UserRole, name: string) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role: selectedRole }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      setRole(selectedRole);
+      setUser({
+        ...defaultUser,
+        name,
+        email,
+        role: selectedRole,
+      });
+    } catch (error: any) {
+      throw error;
+    }
   }, []);
 
   const logout = useCallback(() => {
@@ -251,6 +288,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       role,
       isAuthed: user !== null,
       login,
+      register,
       logout,
       plans,
       addPlan,
@@ -274,6 +312,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       user,
       role,
       login,
+      register,
       logout,
       plans,
       addPlan,

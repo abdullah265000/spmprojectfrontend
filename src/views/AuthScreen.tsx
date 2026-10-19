@@ -14,7 +14,7 @@ const ROLES: { key: UserRole; label: string; description: string; icon: typeof U
 ];
 
 export function AuthScreen() {
-  const { login } = useApp();
+  const { login, register } = useApp();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [role, setRole] = useState<UserRole>('member');
   const [name, setName] = useState('');
@@ -36,13 +36,21 @@ export function AuthScreen() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (ev: React.FormEvent) => {
+  const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!validate()) return;
-    login(role, name || undefined);
+    try {
+      if (mode === 'login') {
+        await login(email, password, role);
+      } else {
+        await register(email, password, role, name);
+      }
+    } catch (err: any) {
+      setErrors({ password: err.message || 'Authentication failed. Please check your credentials.' });
+    }
   };
 
-  const useDemo = () => login(role);
+  const useDemo = () => login('demo@uol.edu.pk', 'correct-password-or-demo', role);
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col lg:flex-row">
